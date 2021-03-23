@@ -4,6 +4,8 @@ from flask_mqtt import Mqtt
 import json
 import datetime
 import os
+import asyncio
+import requests
 
 device_ip=os.environ.get('MASTER_IP')
 if device_ip is None:
@@ -34,14 +36,6 @@ def stop():
 def handle_logging(client, userdata, level, buf):
     print(level, buf)
 
-
-
-@mqtt.on_message()
-def handle_mqtt_message(client, userdata, message):
-    msg = json.dumps({
-        'payload':str(message.payload.decode('utf-8')),
-        'timestamp_iso': datetime.datetime.utcnow().isoformat()
-    })
 
 
 
