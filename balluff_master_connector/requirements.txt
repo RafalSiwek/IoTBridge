@@ -1,0 +1,5 @@
+Flask
+gunicorn
+requests
+paho-mqtt
+flask-mqtt

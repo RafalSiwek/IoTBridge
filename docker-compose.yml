@@ -1,0 +1,49 @@
+version: "3"
+services:
+
+  mqtt_broker:
+    build: ./mqtt_broker/
+    networks:
+      - webnet
+    restart: on-failure
+
+
+  aws_mqtt_connector:
+    depends_on:
+      - mqtt_broker
+    build: ./aws_mqtt_connector/
+    # ports:
+    #   - "5000:5000"
+    networks:
+      - webnet
+    restart: on-failure
+
+  # balluff_master_connector:
+  #   depends_on:
+  #     - mqtt_broker
+  #   build: ./balluff_master_connector/
+  #   ports:
+  #     - "5001:5001"
+  #   networks:
+  #     - webnet
+  #   restart: on-failure
+  
+  nodered:
+    depends_on:
+        - mqtt_broker
+    build: ./nodered
+    volumes:
+      - nodered:/data 
+    ports:
+      - "1880:1880"
+      - "1999:1999"
+      - "2000:2000"
+    networks: 
+      - webnet
+    restart: on-failure
+
+
+networks:
+  webnet:
+volumes:
+  nodered:
