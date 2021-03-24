@@ -13,4 +13,5 @@ COPY --from=builder /root/.local/bin /root/.local/bin
 
 COPY ./code .
 ENV PATH=/root/.local/bin:$PATH
-ENTRYPOINT ["gunicorn", "-b", "0.0.0.0:5001", "app:app"]
+
+ENTRYPOINT ["gunicorn", "--timeout", "1000", "--workers=1","-b", "0.0.0.0:5001","app:app"]

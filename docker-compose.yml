@@ -18,15 +18,15 @@ services:
       - webnet
     restart: on-failure
 
-  # balluff_master_connector:
-  #   depends_on:
-  #     - mqtt_broker
-  #   build: ./balluff_master_connector/
-  #   ports:
-  #     - "5001:5001"
-  #   networks:
-  #     - webnet
-  #   restart: on-failure
+  balluff_master_connector:
+    depends_on:
+      - mqtt_broker
+    build: ./balluff_master_connector/
+    environment:
+      - MASTER_IP=192.168.0.2
+    networks:
+      - webnet
+    restart: on-failure
   
   nodered:
     depends_on:

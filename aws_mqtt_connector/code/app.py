@@ -18,39 +18,6 @@ mqtt.subscribe("#")
 
 aws_mqtt=AWSMqttHandler()
 
-
-@app.route('/hi')
-def hi():
-    logging.debug("Invoking HI...")
-    mqtt.publish("hi",1)
-    return 'Hey, I am doing some crazy-ass web-service shit!'
-
-@app.route('/req')
-def get_req():
-    # api-endpoint 
-    URL = "http://192.168.0.2/dprop.jsn"
-    # sending get request and saving the response as response object 
-    while True:
-        try:
-            r = requests.get(URL,timeout=10)
-        except requests.exceptions.Timeout:
-            print(f'timeout, retrying ....')
-            continue
-        except requests.exceptions.TooManyRedirects:
-            return "Wrong url"
-        except requests.exceptions.RequestException as e:
-            print(e)
-            raise SystemExit(e)
-        break
-
-    # extracting data in json format 
-    data = r.json() 
-    # printing the output 
-    print(f'{data}')
-    #return data
-    return str(data)
-
-
 @mqtt.on_log()
 def handle_logging(client, userdata, level, buf):
     print(level, buf)
