@@ -8,12 +8,12 @@ import requests
 
 app = Flask(__name__)
 app.config['MQTT_CLIENT_ID'] = 'aws_handler_mqtt'
-app.config['MQTT_CLEAN_SESSION'] = True
+app.config['MQTT_CLEAN_SESSION'] = False
 app.config['MQTT_BROKER_URL'] = 'mqtt_broker'
 app.config['MQTT_BROKER_PORT'] = 1883
 app.config['MQTT_REFRESH_TIME'] = 0.2  # refresh time in seconds
 mqtt = Mqtt(app)
-mqtt.subscribe("#")
+mqtt.subscribe("balluff/#",2)
 #mqtt.loop_start()
 
 aws_mqtt=AWSMqttHandler()

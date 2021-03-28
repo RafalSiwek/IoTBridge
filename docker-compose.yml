@@ -5,6 +5,11 @@ services:
     build: ./mqtt_broker/
     networks:
       - webnet
+    volumes:
+      - ./mqtt_broker/mosquitto/config:/mosquitto/config
+      - ./mqtt_broker/mosquitto/data:/mosquitto/data
+      - ./mqtt_broker/mosquitto/log:/mosquitto/log
+      - /etc/localtime:/etc/localtime:ro
     restart: on-failure
 
 
@@ -18,7 +23,7 @@ services:
       - webnet
     restart: on-failure
 
-  balluff_master_connector:
+  balluff_master_connector_192.168.0.2:
     depends_on:
       - mqtt_broker
     build: ./balluff_master_connector/
@@ -47,3 +52,4 @@ networks:
   webnet:
 volumes:
   nodered:
+
