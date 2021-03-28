@@ -35,8 +35,9 @@ def make_get_req(URL):
             r = requests.get(URL,timeout=2)
             return str(r.json())
         except requests.exceptions.Timeout:
-            print(f'timeout, retrying ....')
-        
+            logging.info(f'timeout, retrying ....')
+        except requests.exceptions.ConnectionError:
+            logging.info(f'timeout, retrying ....')
         return "Master connection timeout"
 
 iter = 0

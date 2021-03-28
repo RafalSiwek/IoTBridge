@@ -21,6 +21,7 @@ class AWSMqttHandler:
         logging.info(string)
     
     def __init__(self,devicename="HW01",ca_path = "./creds/root-ca.pem",cert_path = "./creds/certificate.pem.crt",priv_key_path = "./creds/private.pem.key",awshost = "a18s3lp9ll2h3-ats.iot.eu-central-1.amazonaws.com"):
+        self.last_pub_req=None
         self.messagebuffer=[]
         self.devicename = devicename
         self.client=mqtt.Client(devicename)
@@ -38,6 +39,7 @@ class AWSMqttHandler:
         self.client.loop_start()
 
     def pub(self,subtopic="ip",message=""):
+        self.last_pub_req=message
         logging.info("publishing to aws...")
         try:
             self.client.publish("balluff/"+self.devicename+"/"+subtopic,message,1)
