@@ -12,7 +12,7 @@ app = Flask(__name__)
 while True:
     device_ip=os.environ.get('MASTER_IP')
     if device_ip is not None:
-        app.config['MQTT_CLIENT_ID'] = device_ip
+        app.config['MQTT_CLIENT_ID'] = 2001
         app.config['MQTT_CLEAN_SESSION'] = False
         app.config['MQTT_BROKER_URL'] = 'mqtt_broker'
         app.config['MQTT_BROKER_PORT'] = 1883
@@ -30,7 +30,7 @@ Status_URL="http://"+device_ip+"/index.jsn"
 
 
 def make_get_req(URL):
-    for i in range(3):
+    for i in range(5):
         try:
             r = requests.get(URL,timeout=2)
             return str(r.json())

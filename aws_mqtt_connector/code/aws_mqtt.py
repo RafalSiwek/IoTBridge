@@ -42,7 +42,7 @@ class AWSMqttHandler:
         self.last_pub_req=message
         logging.info("publishing to aws...")
         try:
-            self.client.publish("balluff/"+self.devicename+"/"+subtopic,message,1)
+            self.client.publish(self.devicename+"/"+subtopic,message,1)
         except:
             self.messagebuffer.append(message)
 
