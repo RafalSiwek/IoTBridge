@@ -17,8 +17,8 @@ services:
     depends_on:
       - mqtt_broker
     build: ./aws_mqtt_connector/
-    # ports:
-    #   - "5000:5000"
+    volumes:
+      - ./aws_mqtt_connector/data:/data
     networks:
       - webnet
     restart: on-failure
@@ -27,8 +27,11 @@ services:
     depends_on:
       - mqtt_broker
     build: ./balluff_master_connector/
+    volumes:
+      - ./balluff_master_connector/data:/data
     environment:
       - MASTER_IP=192.168.0.2
+      - QUEUE_DICT=../data
     networks:
       - webnet
     restart: on-failure

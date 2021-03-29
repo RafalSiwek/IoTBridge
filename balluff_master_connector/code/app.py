@@ -3,50 +3,85 @@ import logging
 import json
 import os
 import requests
-from flask_mqtt import Mqtt
+import paho.mqtt.client as mqtt
+from persistqueue import Queue
 from time import sleep
+import datetime
 
 
 app = Flask(__name__)
 
-while True:
-    device_ip=os.environ.get('MASTER_IP')
-    if device_ip is not None:
-        app.config['MQTT_CLIENT_ID'] = 2001
-        app.config['MQTT_CLEAN_SESSION'] = False
-        app.config['MQTT_BROKER_URL'] = 'mqtt_broker'
-        app.config['MQTT_BROKER_PORT'] = 1883
-        app.config['MQTT_REFRESH_TIME'] = 0.2  # refresh time in seconds
-        mqtt = Mqtt(app)
-        #raise SystemExit(device_ip)
-        break
-    else:
-        raise SystemExit("Setup MASTER_IP envirnoment variable ...")
-        device_ip=os.environ.get('MASTER_IP')
-
-print("connection made")
+queuedict=os.environ.get('QUEUE_DICT')
+device_ip=os.environ.get('MASTER_IP')
+app = Flask(__name__)
+MQTT_CLIENT_ID = 'balluff_master:'+device_ip
+MQTT_BROKER_URL = 'mqtt_broker'
+MQTT_CLEAN_SESSION = False
+MQTT_BROKER_PORT = 1883
+MQTT_KEEP_ALIVE_DURATION = 10
 Process_URL="http://"+device_ip+"/dprop.jsn"
 Status_URL="http://"+device_ip+"/index.jsn"
+
+messagebuffer=Queue(queuedict)
+
+def publish(topic,message):
+    try:
+        mqttc.publish(topic,message,2)
+    except:
+        payload=json.loads({
+            'topic':topic,
+            'message':message
+        })
+        messagebuffer.put(payload)
+
+
+def handle_connection(client, userdata, flags, rc):
+    logging.debug("connected ok")
+    logging.debug([client,userdata,flags,rc])
+    while messagebuffer.qsize():
+        payload = json.loads(messagebuffer.get())
+        mqttc.publish(payload.topic,payload.message,2)
+        messagebuffer.task_done()
+
+
+mqttc = mqtt.Client(MQTT_CLIENT_ID,MQTT_CLEAN_SESSION)
+try:
+    mqttc.connect(MQTT_BROKER_URL, MQTT_BROKER_PORT,MQTT_KEEP_ALIVE_DURATION)
+    logging.debug("Connection success")
+    mqttc.loop_start()
+except:
+    logging.debug("internall connection failed")
+    exit(1)
+
 
 
 def make_get_req(URL):
     for i in range(5):
         try:
             r = requests.get(URL,timeout=2)
-            return str(r.json())
+            msg = json.dumps({
+                'data':r.json(),
+                'receive_time':datetime.datetime.utcnow().isoformat()
+            })
+            return msg
         except requests.exceptions.Timeout:
             logging.info(f'timeout, retrying ....')
         except requests.exceptions.ConnectionError:
             logging.info(f'timeout, retrying ....')
-        return "Master connection timeout"
+    msg = json.dumps({
+        'data':"Master connection timeout",
+        'receive_timestamp':datetime.datetime.utcnow().isoformat()
+    })
+    return msg
 
 iter = 0
 
 while True:
-    mqtt.publish("balluff/"+device_ip+"/IO-Link_Process_Data",make_get_req(Process_URL),2)
+    logging.info(messagebuffer.qsize())
+    publish("balluff/"+device_ip+"/IO-Link_Process_Data",make_get_req(Process_URL))
     if iter >=5:
-        mqtt.publish("balluff/"+device_ip+"/Master_Status_Data",make_get_req(Status_URL),2)
-        mqtt.publish("balluff/"+device_ip+"/IO-Link_Process_Data",make_get_req(Process_URL),2)
+        publish("balluff/"+device_ip+"/Master_Status_Data",make_get_req(Status_URL))
+        publish("balluff/"+device_ip+"/IO-Link_Process_Data",make_get_req(Process_URL))
         iter = 0
     iter +=1
     sleep(0.4)

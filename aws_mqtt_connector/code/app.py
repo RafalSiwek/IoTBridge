@@ -21,32 +21,38 @@ def handle_connection(client, userdata, flags, rc):
     logging.debug([client,userdata,flags,rc])
 
 
-def handle_logging(client, userdata, level, buf):
-    print(level, buf)
 
 def handle_mqtt_message(client, userdata, message):
-    msg = json.dumps({
-        'payload':str(message.payload.decode('utf-8')),
-        'timestamp_iso': datetime.datetime.utcnow().isoformat()
-    })
-    aws_mqtt.pub(message.topic,msg)
+    try:
+        msg = json.loads(message.payload.decode('utf-8'))
+        msg['send_timestamp']= datetime.datetime.utcnow().isoformat()
+    except TypeError as e:
+        msg = {
+            'data':message.payload.decode('utf-8'),
+            'send_timestamp':datetime.datetime.utcnow().isoformat()
+            }
+    
+    aws_mqtt.pub(message.topic,json.dumps(msg))
+    mqttc.publish("test",json.dumps(msg),2)
 
 
 mqttc = mqtt.Client(MQTT_CLIENT_ID,MQTT_CLEAN_SESSION)
 mqttc.on_message = handle_mqtt_message
-mqttc.enable_logger()
-mqttc.on_log = handle_logging
 mqttc.on_connect = handle_connection
+
 
 try:
     mqttc.connect(MQTT_BROKER_URL, MQTT_BROKER_PORT,MQTT_KEEP_ALIVE_DURATION)
+    logging.debug("Connection success")
+    mqttc.subscribe("balluff/#",2)
+    mqttc.loop_start()
 except:
     logging.debug("internall connection failed")
-    exit(1)
+    logging.error("Not able to connect to mqtt internal broker")
+    raise SystemError(1)
 
-logging.debug("Connection success")
-mqttc.subscribe("balluff/#",2)
-mqttc.loop_start()
+
+
 
 @app.route("/hi")
 def hi():
@@ -54,7 +60,7 @@ def hi():
         'connected aws client':str(aws_mqtt.client),
         'connected mqtt client':str(mqtt),
         'last message':aws_mqtt.last_pub_req,
-        'aws publish buffer':aws_mqtt.messagebuffer
+        'aws publish buffer':aws_mqtt.messagebuffer.qsize()
 
     })
 

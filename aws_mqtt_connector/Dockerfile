@@ -6,6 +6,7 @@ RUN pip install --user -r requirements.txt
 
 
 FROM python:3.9-alpine
+COPY ./data .
 WORKDIR /code
 
 COPY --from=builder /root/.local/lib/python3.9/site-packages /root/.local/lib/python3.9/site-packages
