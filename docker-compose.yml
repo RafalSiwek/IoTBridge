@@ -1,7 +1,8 @@
-version: "3"
+version: '3.1'
 services:
 
   mqtt_broker:
+    image: mqtt_broker
     build: ./mqtt_broker/
     networks:
       - webnet
@@ -16,6 +17,7 @@ services:
   aws_mqtt_connector:
     depends_on:
       - mqtt_broker
+    image: aws_mqtt_connector
     build: ./aws_mqtt_connector/
     volumes:
       - ./aws_mqtt_connector/data:/data
@@ -23,9 +25,10 @@ services:
       - webnet
     restart: on-failure
 
-  balluff_master_connector_192.168.0.2:
+  balluff_master_connector:
     depends_on:
       - mqtt_broker
+    image: balluff_master_connector
     build: ./balluff_master_connector/
     volumes:
       - ./balluff_master_connector/data:/data
@@ -39,6 +42,7 @@ services:
   nodered:
     depends_on:
         - mqtt_broker
+    image: nodered
     build: ./nodered
     volumes:
       - nodered:/data 
@@ -50,9 +54,13 @@ services:
       - webnet
     restart: on-failure
 
-
 networks:
   webnet:
 volumes:
   nodered:
+# secrets:
+#   my_external_secret:
+#     external: true
+
+
 

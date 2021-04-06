@@ -33,7 +33,7 @@ class AWSMqttHandler:
 
         try:
             self.client.connect(awshost, 8883,10)
-            logging.debug("connection succeded")
+            logging.info("connection succeded")
             self.client.loop_start()
         except:
             logging.error("connection to aws failed")
