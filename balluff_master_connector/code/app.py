@@ -11,6 +11,7 @@ import datetime
 
 app = Flask(__name__)
 
+name=os.environ.get('DEVICE_NAME')
 queuedict=os.environ.get('QUEUE_DICT')
 device_ip=os.environ.get('MASTER_IP')
 app = Flask(__name__)
@@ -47,10 +48,10 @@ def handle_connection(client, userdata, flags, rc):
 mqttc = mqtt.Client(MQTT_CLIENT_ID,MQTT_CLEAN_SESSION)
 try:
     mqttc.connect(MQTT_BROKER_URL, MQTT_BROKER_PORT,MQTT_KEEP_ALIVE_DURATION)
-    logging.debug("Connection success")
+    logging.info("Connection success")
     mqttc.loop_start()
 except:
-    logging.debug("internall connection failed")
+    logging.info("internall connection failed")
     exit(1)
 
 
@@ -78,10 +79,10 @@ iter = 0
 
 while True:
     logging.info(messagebuffer.qsize())
-    publish("balluff/"+device_ip+"/IO-Link_Process_Data",make_get_req(Process_URL))
+    publish("balluff/"+name+"/IO-Link_Process_Data",make_get_req(Process_URL))
     if iter >=5:
-        publish("balluff/"+device_ip+"/Master_Status_Data",make_get_req(Status_URL))
-        publish("balluff/"+device_ip+"/IO-Link_Process_Data",make_get_req(Process_URL))
+        publish("balluff/"+name+"/Master_Status_Data",make_get_req(Status_URL))
+        publish("balluff/"+name+"/IO-Link_Process_Data",make_get_req(Process_URL))
         iter = 0
     iter +=1
     sleep(0.4)

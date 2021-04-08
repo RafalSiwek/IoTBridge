@@ -5,16 +5,60 @@ from aws_mqtt import AWSMqttHandler
 import json
 import datetime
 import requests
+import os
+import base64
+
 
 app = Flask(__name__)
-MQTT_CLIENT_ID = "aws_mqtt_handler"
+
+DEVICE_NAME=os.environ.get('DEVICE_NAME')
+MQTT_CLIENT_ID = "aws_mqtt_handler"+DEVICE_NAME
+
+PRIV_KEY_STRING=str(os.environ.get('PRIV_KEY'))
+CERT_PEM_STRING=str(os.environ.get('CERT_PEM'))
+ROOT_CA_STRING=str(os.environ.get('ROOT_CA'))
+AWS_HOST_STRING=str(os.environ.get('ENDPOINT'))
+
 MQTT_BROKER_URL = 'mqtt_broker'
 MQTT_CLEAN_SESSION = False
 MQTT_BROKER_PORT = 1883
 MQTT_KEEP_ALIVE_DURATION = 10
 
+CA_PATH = "./creds/root-ca.pem"
+CERT_PATH = "./creds/certificate.pem.crt"
+PRIV_KEY_PATH = "./creds/private.pem.key"
 
-aws_mqtt=AWSMqttHandler()
+if CERT_PEM_STRING is not None:
+    f_pem_cert = open(CERT_PATH,"w")
+    f_pem_cert.write(CERT_PEM_STRING)
+    f_pem_cert.close()
+else:
+    logging.log("Env variable CERT_PEM not set")
+    exit(1)
+
+if PRIV_KEY_STRING is not None:
+    f_priv_key = open(PRIV_KEY_PATH,"w")
+    f_priv_key.write(PRIV_KEY_STRING)
+    f_priv_key.close()   
+else:
+    logging.log("Env variable PRIV_KEY not set")
+    exit(1)
+
+if ROOT_CA_STRING is not None:
+    f_root_ca = open(CA_PATH,"w")
+    f_root_ca.write(ROOT_CA_STRING)
+    f_root_ca.close()
+else:
+    logging.log("Env variable ROOT_CA not set")
+    exit(1)
+
+if AWS_HOST_STRING is None:
+    logging.log("Env variable ENDPOINT not set")
+    exit(1)
+
+aws_mqtt=AWSMqttHandler(DEVICE_NAME,AWS_HOST_STRING)
+
+
 
 def handle_connection(client, userdata, flags, rc):
     logging.debug("connected ok")

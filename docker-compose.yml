@@ -1,4 +1,10 @@
 version: '3.1'
+
+
+
+volumes:
+  nodered:
+
 services:
 
   mqtt_broker:
@@ -13,32 +19,6 @@ services:
       - /etc/localtime:/etc/localtime:ro
     restart: on-failure
 
-
-  aws_mqtt_connector:
-    depends_on:
-      - mqtt_broker
-    image: aws_mqtt_connector
-    build: ./aws_mqtt_connector/
-    volumes:
-      - ./aws_mqtt_connector/data:/data
-    networks:
-      - webnet
-    restart: on-failure
-
-  balluff_master_connector:
-    depends_on:
-      - mqtt_broker
-    image: balluff_master_connector
-    build: ./balluff_master_connector/
-    volumes:
-      - ./balluff_master_connector/data:/data
-    environment:
-      - MASTER_IP=192.168.0.2
-      - QUEUE_DICT=../data
-    networks:
-      - webnet
-    restart: on-failure
-  
   nodered:
     depends_on:
         - mqtt_broker
@@ -54,13 +34,36 @@ services:
       - webnet
     restart: on-failure
 
+
+  # aws_mqtt_connector:
+  #   depends_on:
+  #     - mqtt_broker
+  #   image: aws_mqtt_connector
+  #   build: ./aws_mqtt_connector/
+  #   volumes:
+  #     - ./aws_mqtt_connector/data:/data
+  #   networks:
+  #     - webnet
+  #   restart: on-failure
+
+  # balluff_master_connector:
+  #   depends_on:
+  #     - mqtt_broker
+  #   image: balluff_master_connector
+  #   build: ./balluff_master_connector/
+  #   environment:
+  #     - MASTER_IP
+  #     - QUEUE_DICT
+  #   networks:
+  #     - webnet
+  #   restart: on-failure
+  
 networks:
   webnet:
-volumes:
-  nodered:
-# secrets:
-#   my_external_secret:
-#     external: true
+    driver: bridge
+
+
+
 
 
 
