@@ -77,7 +77,6 @@ def handle_mqtt_message(client, userdata, message):
             }
     
     aws_mqtt.pub(message.topic,json.dumps(msg))
-    mqttc.publish("test",json.dumps(msg),2)
 
 
 mqttc = mqtt.Client(MQTT_CLIENT_ID,MQTT_CLEAN_SESSION)

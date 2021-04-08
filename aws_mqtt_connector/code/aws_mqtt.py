@@ -21,7 +21,7 @@ class AWSMqttHandler:
         logging.debug("mid: "+str(mid))
 
     
-    def __init__(self,devicename="HW01",awshost = "a18s3lp9ll2h3-ats.iot.eu-central-1.amazonaws.com",ca_path = "./creds/root-ca.pem",cert_path = "./creds/certificate.pem.crt",priv_key_path = "./creds/private.pem.key",queuedict="../data"):
+    def __init__(self,devicename,awshost,ca_path = "./creds/root-ca.pem",cert_path = "./creds/certificate.pem.crt",priv_key_path = "./creds/private.pem.key",queuedict="../data"):
         self.last_pub_req=None
         self.messagebuffer=Queue(queuedict)
         self.devicename = devicename
@@ -32,7 +32,7 @@ class AWSMqttHandler:
 
 
         try:
-            self.client.connect(awshost, 8883,10)
+            self.client.connect(awshost, 8883,60)
             logging.info("connection succeded")
             self.client.loop_start()
         except:
