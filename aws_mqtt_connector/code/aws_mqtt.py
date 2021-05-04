@@ -32,7 +32,7 @@ class AWSMqttHandler:
 
 
         try:
-            self.client.connect(awshost, 8883,60)
+            self.client.connect(awshost, 8883,10)
             logging.info("connection succeded")
             self.client.loop_start()
         except:

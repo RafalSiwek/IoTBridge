@@ -12,7 +12,6 @@ import datetime
 app = Flask(__name__)
 
 name=os.environ.get('DEVICE_NAME')
-queuedict=os.environ.get('QUEUE_DICT')
 device_ip=os.environ.get('MASTER_IP')
 app = Flask(__name__)
 MQTT_CLIENT_ID = 'balluff_master:'+device_ip
@@ -23,7 +22,7 @@ MQTT_KEEP_ALIVE_DURATION = 10
 Process_URL="http://"+device_ip+"/dprop.jsn"
 Status_URL="http://"+device_ip+"/index.jsn"
 
-messagebuffer=Queue(queuedict)
+messagebuffer=Queue("../data")
 
 def publish(topic,message):
     try:
