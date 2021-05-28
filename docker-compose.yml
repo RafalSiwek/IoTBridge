@@ -1,12 +1,5 @@
 version: '3.1'
-
-
-
-volumes:
-  nodered:
-
 services:
-
   mqtt_broker:
     image: mqtt_broker
     build: ./mqtt_broker/
@@ -28,39 +21,26 @@ services:
       - nodered:/data 
     ports:
       - "1880:1880"
-      - "1999:1999"
-      - "2000:2000"
+      - "1999:1999/udp"
+      - "2000:2000/udp"
     networks: 
+      - default
       - webnet
     restart: on-failure
 
+  influxdb:
+    image: influxdb:latest
+    ports:
+      - '8086:8086'
+    restart: on-failure
 
-  # aws_mqtt_connector:
-  #   depends_on:
-  #     - mqtt_broker
-  #   image: aws_mqtt_connector
-  #   build: ./aws_mqtt_connector/
-  #   volumes:
-  #     - ./aws_mqtt_connector/data:/data
-  #   networks:
-  #     - webnet
-  #   restart: on-failure
-
-  # balluff_master_connector:
-  #   depends_on:
-  #     - mqtt_broker
-  #   image: balluff_master_connector
-  #   build: ./balluff_master_connector/
-  #   environment:
-  #     - MASTER_IP
-  #     - QUEUE_DICT
-  #   networks:
-  #     - webnet
-  #   restart: on-failure
-  
 networks:
   webnet:
     driver: bridge
+  default:
+volumes:
+    nodered:
+    
 
 
 

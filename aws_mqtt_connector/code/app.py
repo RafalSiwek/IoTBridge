@@ -93,7 +93,7 @@ try:
 except:
     logging.debug("internall connection failed")
     logging.error("Not able to connect to mqtt internal broker")
-    raise SystemError(1)
+    exit(1)
 
 
 
